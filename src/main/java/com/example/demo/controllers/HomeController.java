@@ -13,4 +13,9 @@ public class HomeController {
         return "Welcome to the Home Page!";
     }
 
+    @GetMapping("/about")
+    public String about() {
+        return "This is the about page!";
+    }
+
 }
