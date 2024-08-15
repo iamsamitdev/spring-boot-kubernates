@@ -16,7 +16,7 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 80 # 80% of the CPU
+        averageUtilization: 50 # 50% of the CPU
   - type: Resource
     resource:
       name: memory
