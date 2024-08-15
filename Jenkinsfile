@@ -4,8 +4,8 @@ pipeline {
     environment {
       MAVEN_ARGS = "-e clean install"
       DOCKER_IMAGE = 'iamsamitdev/springbootdemo:latest'
-      // KUBE_CONFIG_PATH = 'C:\\path\\to\\kubeconfig'           // เปลี่ยนตามตำแหน่งที่เก็บ kubeconfig บน Jenkins
-      // KUBE_NAMESPACE = 'default'                              // ชื่อ namespace ที่ใช้ใน Kubernetes
+      KUBE_CONFIG_PATH = 'C:\\Users\\samit\\.kube\\config'    // เปลี่ยนตามตำแหน่งที่เก็บ kubeconfig บน Jenkins
+      KUBE_NAMESPACE = 'default'                              // ชื่อ namespace ที่ใช้ใน Kubernetes
     }
 
     stages {
@@ -38,13 +38,15 @@ pipeline {
                 }
             }
         }
-        // stage('Deploy to Kubernetes') {
-        //     steps {
-        //         // ใช้ kubectl เพื่อ deploy image ที่สร้างไปยัง Kubernetes cluster
-        //         bat "kubectl --kubeconfig=${KUBE_CONFIG_PATH} set image deployment/springboot-app springboot-container=${DOCKER_IMAGE} -n ${KUBE_NAMESPACE}"
-        //         bat "kubectl --kubeconfig=${KUBE_CONFIG_PATH} rollout status deployment/springboot-app -n ${KUBE_NAMESPACE}"
-        //     }
-        // }
+        stage('Deploy to Kubernetes') {
+            steps {
+                // ใช้ kubectl apply เพื่อ deploy หรืออัปเดต resource ใน Kubernetes จาก deployment.yaml
+                bat "kubectl --kubeconfig=${KUBE_CONFIG_PATH} apply -f deployment.yaml -n ${KUBE_NAMESPACE}"
+                
+                // ตรวจสอบสถานะของ deployment
+                bat "kubectl --kubeconfig=${KUBE_CONFIG_PATH} rollout status deployment/springboot-app -n ${KUBE_NAMESPACE}"
+            }
+        }
     }
 
     post {

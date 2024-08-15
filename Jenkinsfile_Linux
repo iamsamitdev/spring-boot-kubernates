@@ -4,8 +4,8 @@ pipeline {
     environment {
       MAVEN_ARGS = "-e clean install"
       DOCKER_IMAGE = 'iamsamitdev/springbootdemo:latest'
-      // KUBE_CONFIG_PATH = '/root/.kube/config'           // เปลี่ยนตามตำแหน่งที่เก็บ kubeconfig บน Jenkins
-      // KUBE_NAMESPACE = 'default'                        // ชื่อ namespace ที่ใช้ใน Kubernetes
+      KUBE_CONFIG_PATH = '/Users/samit/.kube/config'    // เปลี่ยนตามตำแหน่งที่เก็บ kubeconfig บน Jenkins
+      KUBE_NAMESPACE = 'default'                        // ชื่อ namespace ที่ใช้ใน Kubernetes
     }
 
     stages {
@@ -29,22 +29,24 @@ pipeline {
                 sh "docker images"
             }
         }
-        // stage('Push Docker Image') {
-        //     steps {
-        //         // Login เข้า Docker Hub และ push Docker image ที่สร้างขึ้น
-        //         withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKERHUB_PASSWORD')]) {
-        //             sh "echo ${DOCKERHUB_PASSWORD} | docker login -u yourdockerhubusername --password-stdin"
-        //             sh "docker push ${DOCKER_IMAGE}"
-        //         }
-        //     }
-        // }
-        // stage('Deploy to Kubernetes') {
-        //     steps {
-        //         // ใช้ kubectl เพื่อ deploy image ที่สร้างไปยัง Kubernetes cluster
-        //         sh "kubectl --kubeconfig=${KUBE_CONFIG_PATH} set image deployment/springboot-app springboot-container=${DOCKER_IMAGE} -n ${KUBE_NAMESPACE}"
-        //         sh "kubectl --kubeconfig=${KUBE_CONFIG_PATH} rollout status deployment/springboot-app -n ${KUBE_NAMESPACE}"
-        //     }
-        // }
+        stage('Push Docker Image') {
+            steps {
+                // Login เข้า Docker Hub และ push Docker image ที่สร้างขึ้น
+                withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKERHUB_PASSWORD')]) {
+                    sh "echo ${DOCKERHUB_PASSWORD} | docker login -u iamsamitdev --password-stdin"
+                    sh "docker push ${DOCKER_IMAGE}"
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                // ใช้ kubectl apply เพื่อ deploy หรืออัปเดต resource ใน Kubernetes จาก deployment.yaml
+                sh "kubectl --kubeconfig=${KUBE_CONFIG_PATH} apply -f deployment.yaml -n ${KUBE_NAMESPACE}"
+                
+                // ตรวจสอบสถานะของ deployment
+                sh "kubectl --kubeconfig=${KUBE_CONFIG_PATH} rollout status deployment/springboot-app -n ${KUBE_NAMESPACE}"
+            }
+        }
     }
 
     post {
