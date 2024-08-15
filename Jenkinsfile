@@ -29,15 +29,15 @@ pipeline {
                 bat "docker images"
             }
         }
-        // stage('Push Docker Image') {
-        //     steps {
-        //         // Login เข้า Docker Hub และ push Docker image ที่สร้างขึ้น
-        //         withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKERHUB_PASSWORD')]) {
-        //             bat "echo %DOCKERHUB_PASSWORD% | docker login -u yourdockerhubusername --password-stdin"
-        //             bat "docker push ${DOCKER_IMAGE}"
-        //         }
-        //     }
-        // }
+        stage('Push Docker Image') {
+            steps {
+                // Login เข้า Docker Hub และ push Docker image ที่สร้างขึ้น
+                withCredentials([string(credentialsId: 'dockerhub-credentials', variable: 'DOCKERHUB_PASSWORD')]) {
+                    bat "echo %DOCKERHUB_PASSWORD% | docker login -u iamsamitdev --password-stdin"
+                    bat "docker push ${DOCKER_IMAGE}"
+                }
+            }
+        }
         // stage('Deploy to Kubernetes') {
         //     steps {
         //         // ใช้ kubectl เพื่อ deploy image ที่สร้างไปยัง Kubernetes cluster
