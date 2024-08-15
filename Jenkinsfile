@@ -22,6 +22,9 @@ pipeline {
                 // สร้าง Docker image จาก Dockerfile ที่อยู่ใน project
                 bat "docker build -t ${DOCKER_IMAGE} ."
 
+                // ลบ dangling images (images ที่ไม่มี tag)
+                bat "docker image prune -f"
+
                 // แสดงรายชื่อ Docker images ทั้งหมดที่มีอยู่หลังจาก build เสร็จ
                 bat "docker images"
             }
